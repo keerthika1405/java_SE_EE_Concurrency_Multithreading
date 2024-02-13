@@ -1,0 +1,1029 @@
+what you should know --> 
+java SE API 
+(Eclipse,NetBean or any other IDE) 
+hands on with the usage of an application server like JBOSS, GlassFish, webLogic for EE
+Basic Knowledge  EJB API(Enterprise JavaBean)
+Adequate Knowledge of RESTFUL API service
+Knowledge of DataBase Interaction
+
+            Java Standard Edition Concurrency Utilities
+
+Concurrency:
+
+ Term-->Interchangably , parallelism , concurrency and Asynchronous Task
+
+ Concurrency--> machine or software application executing multiple task
+                (this task could be function or they could be part of code or completely different program)
+                in concurrency ,all of this task will have overlapped time period
+parallelism--> Run Task exactly  at the same time
+               (it means that part of task  or several task are running together exactly at the same time)
+Asynchronous--> application capable for execution asynchronous task
+
+
+
+
+Example:
+whatever action is performed by the user in html , lets say like button click or mouse hover ,it send request to the appliaction for processinng and then come back with response  which immediately get updated on  the html , now this processing was such that since the ressponse got updated on the  html immediately the use kept( waiting ) all that while
+this kind of call is called  ["real time call" or "synchronous call"]
+
+there is a certain job in your application , which do not require "interference" at all ,this kind of task also take a longer time to execute in your application
+eg: if i want to sent out an email to all the user of my application or i want to do certain cleanup and maintenance activities for application or i want to login to data for my application
+These task "do not require user interference " which means their is no point on keeping the user waiting for these task to get completed 
+this kind of call is called  ["Asynchronous tasks"]
+Asynchronous call in your application will always take a callback reference , so that when they completed the callback funtion execute and then the response get updated on html
+the response get updated at the later point in time , the user does not have to wait for it and can keep doing other thing on the application
+
+
+
+concurrency with java platform--> there are two set of API that we have with us 
+1.Standard Edition API
+2.Enterprise Edition API(concurrency programming is particular when stated in java via (multithreading))
+
+Setup:
+1.JDK ,
+2.NeatBean IDE(one shop for all development IDE activity like (coding,testing,hosting the application)
+on the server)
+3.we are going to build a RESTful application and we need to host that on an appliaction server for  which we will require an application container(like GlassFish server, IBM websphere , webLogic or wifly)
+
+4.in order to test out the  RESTful web service(we would go with the tool called "POSTMAN")(its a  very common and popular tool which is used across the industry project to test Restful Services)
+
+5.going to do a few database interaction , so we will require database server(like MYSQL server , MS SQL, POSTGRE SQL) 
+--> driver implementation for mysql server
+
+6.this part is about java enterpride edition concurrency but we have to take a look at some of the java standard edition concurrency API first
+
+
+process and thread
+
+               process                                         thread
+
+process is an running instance of                    |thread is a light weight process, it is an 
+application or an program.                           |entity within process trying to exhibits
+eg:on my machine , may have microsoft window,        |multitasking
+excel, chrome browser , netbean IDE , mysql server   |eg: microsoft word process that im running on
+and so many programmer installed ,but i launced each |machine , i can do many thing simultaneously
+one of them for my use  them ,i am trying to run     |each of these being done by a thread and all the 
+instance of that  program and that is a process      | thread work together to provide multitasking 
+(represent applic or program)                        |in that process
+
+
+process is always going to be in its self            |when you talking about thread is actually a part 
+contained execution environment and it require       |of a process execution environment which means it
+its own resources and memory space  to operate       |will share the virtual address space and the  
+effectively to provide  multitasking on machine      |system resources with the other thread in that  
+every process generally starts off with a single     |process , this will require fewer resources
+thread and then many thread can be createdd from it  |
+every process have its unique process ID,
+it will have its virtual address space ,a
+set of environment variable, security context,
+its executable code etc.
+
+add a new process , going to be a costly business    |switching from one thread to another is really not
+thats because  you want to creat an altogether new   |that bigger deal
+self contained execution environment , so that become|now , this capability of providing multitasking
+really difficult                                     |via thread in the application is exactly what 
+switch between process , then there has to be an     |the multithreading API of java is
+interference of an underlying operating system       |
+IPC-->interprocess communication(they are system     |Every Thread like a process have its own thread
+call that are required from underlying os),which     |id, wn set of exception handler, priority 
+is  going to incur excessive processing overhead     |scheduling, it wil use register,stack to strore 
+                                                     |local procedure calls or local variable and set
+                                                     |set of structure that the system use inorder to
+                                                     |save state or context of thread until it pick
+                                                     |up  for execution
+
+
+
+Scheduling and thread priority
+
+scheduling?
+order of thread executing in the application
+eg:generally when you have a single CPU , all the thread will have to share it
+What is the order of thread that is executing in the application on that single CPU 
+
+
+JVM uses fixed priority:
+when it come to java platform, jvm will never force any kind of algorithms for scheduling of threads
+its generally relies on underlying operating system to schedules it thread for execution
+(jvm use determinisitic fixed priority scheduling)-->
+it execute first highest priority thread(if two thread have same priority then jvm pickupone of them for execution)
+jvm scheduling is preemptive (what if high priority thread execution if suddently 2nd thread comes with high of highest priority then jvm suspend the current thread execution this run will continue till the thread either complete it job or maybe someother higher priority thread enter the system)
+
+JVM  can also employ time slicing scheduling as per the underlying os(every thread is given an equal time slice for execution)once a time slice for a particular threads execution elapses , then JVM is going to to save the context of the thread and pick up the next thread in line for its execution
+so once all thread  get the execution time jvm may come back to the  first thread and resume its execution by restoring its thread context
+
+priority?
+generally you have a thread that get created in your application or system
+priority signify which thread  is going to be first for exection
+java multithreading API(their is a facility in the API by which  you can assign your own priority to the threads )[never assume  that the platform may use time slicing whenever a threadget executed it always transit through many "state" during its entire lifecycle]
+
+
+
+                    Java SE multithreading
+java support multithreading programming throught it  basic and high level API
+
+
+              Basic API                           High-level API
+        Thread and Runnable                    Excecutor Framework
+        (java.lang.package)                  (java.util.concurrent)
+
+
+
+
+How do you creat a thread using thread class?
+1. Thread class present in java.lang.package
+2.Need to creat a instance of this class to run a asynchronous task
+3.Thread class has run() methods that defined the job of the thread spawned(generated)
+
+eg:
+"job of a thread is -->read a file
+create a class which extends the thread class
+define the run methods which will have the file reading code to be executed as a asynchronous task
+(file to be placed at a desired location)
+to test create a instance of user defined class
+start the thread"
+
+eg: you have three thread in the system all of them ,trying to read that file at the same time
+this is what exactly parallelism is(when you have multiple thread in the system)
+
+How do you creat a thread using Runnable Interface?
+runnable Interface  is like a thread class is present under the java.lang.package
+like a thread class again runnable interface got run() methods(which specify the job of the thread
+ to be spawned)
+
+whenever you want to create a thread in your system the " runnable  interface option is  always 
+preferred over thread class" (thats because in java we all know that we can have a class that implement 
+multiple interface ,but  you cannot have a class that extends more than one class , so if you try to
+extends the thread class, you wouldnt be able to  extends any other claass)
+
+eg:
+"job of a thread is -->read a file
+create a instance of runnable using lambda expression
+to test , feed the instances to the Thread Constructor
+start the thread
+
+(all the API which will allow you to start and manage thread ,are on the thread class , and not 
+on the runnable interface so we need a instance of thread class so that all those API become 
+accessible to us)
+
+
+
+                  State of Thread or lifecycle of thread
+
+ state of thread  transition through during  its entire lifecycle
+       
+ 1."runnable " means ready to run(indication given to JVM that yes, this thread is ready to run)
+ 2.when your JVM is going to execute the runnable methods as per the scheduling ,when thats the point where the state of thread
+ becoming "running"
+          *in between the state of put to sleep or if the thread waiting fr some resource 
+ (then it will go into the "blocked" state or "waiting" state)
+ 
+ 3.when the job get completed thats, when the state of the thread is "terminated" as we say:dead
+
+ thread.(here multiple inbuild methods we can use with thread)
+
+
+
+                              (WAITING , SLEEPING , BLOCKING)
+            notify()|notifyAll()   /                      ^
+            when sleep time is up /                        \ wait()
+            resume()             /                          \ sleep()
+                                /                            \ suspend()
+                               v                              \
+            START---->    RUNNABLE      <------------>      RUNNING ---->TERMINATED(DEAD)
+                                          yield()
+
+
+Limitation of thread:
+1.thread or runnable API are sufficient for low level or basic task 
+2.As a developer you have to creat the instance of the thread and start them off(you are responsible 
+creating and managing  the thread in the system or application to the business logic is anyway you 
+supposed to code)
+3.multithreading capability offer you a chance to utilize the core of the CPU effectively , in order 
+to support this completely  we also need to write an application with solid parallelsim logic and the 
+lot of factor that you need to take in consideration
+like what are  the job that  should be executed by threads?
+     when is a thread supposed to start its execution?
+     what happen when there is an error in the execution?
+     what happen if there is an interruption in the execution?
+     how do i make sure that all the thread of my system are completely terminated why my applic shut down
+list is endless , all of the logic in addition to business logic (to much of code to write)
+complexity of system grows , when number of users grows
+4.For large scale application,thread creation and management become even futher tedious with very basic API
+
+5. you could have additional requirement in the appliaction(you want to schedule certain job in your 
+application at certain regular interval or may be with definite delay)so all of these requirement
+you will have to code  your own logic(too much code to write and difficult to implement all of its)
+
+Overcome the limitation
+            we actually  have a High level of API  as per standard edition platform
+            "(ie Executor FrameWork)"
+
+            its provides you standardized invocation,scheduling , execution and control of Asynchronous
+            task in parallel threads
+            it composed of  many classes and interface  that provide creation and management of  threads
+            it was released in JSR(java specification request) 166 , as per the JAVA SE 5
+
+
+
+
+
+Executor API:
+           1. "Decouple thread creation and management  logic from the application business logic" 
+            this means a developer you only have to focus on your business logic rather than getting into 
+            hassels  of thread creation and management 
+           2. this framework provide you a very clear demarcation and  a smooth coordination between the thread
+            submitting the task and the thread executing the job
+           3. Additional , the framework give you  option to make a clean shutdown  of all the task running in
+            your system
+           4. this framework will allow you to have a return value of the task
+            you can also check that out in the thread  which submitted the  task
+           5. the requirement of scheduling certain job at regular interval or with fixed delay can be very easy 
+            met with the executor framework
+           6. the framework automatially create thread pools , which help you to spawn thread  for job of the application
+
+Thread pool:
+eg: you have a application like bank account website
+ (which has got million of user , million of bank account , the requirement is that we want to generate
+  a transaction report for every bank account , Now this is the requirement where the user interference is
+  not necessary , so we decide to spawn it  in a thread, but when you have millions of bank account,
+  you may want to create a one thread per bank account , but you do that , you will quickly exceed the
+  maximum number of threads that can be created for underlying platform and eventually your system is
+  going to  come crashing down , Doesn't work)
+
+  standalone application or enterprise application which deals with thread often have its very common 
+  requirement to handle large number of client and if youre going to spawn one thread per client
+  its going to incue excessive processing overhead
+
+  allocating and de-allocating memory resources is very costly business for thread
+so we have a thread pools
+it is a logical pool with fixed number of thread , each thread is going to be given a job to do , once the
+job is over or thread get terminated  , then in its place , a new thread will be created
+(so we are reusing threads)
+so creating thread pool is definitely a better way to scale  the concurrent application performance
+1.they reduce per task innovation overhead
+2.manage resources efficiently(used with connection pooling , every thread maintain an open connection
+to the database that way you do not end up creating a too many database object as well , which may put your 
+system under unnecessary stress)
+3.they also help to degrate the application gracefully
+
+      java Executor framework allows one to create many kind of thread pool
+      (you don't have to do anyrthing for it the framework will do this job for you)
+
+
+
+how many thread do you think should reside in the pool?
+based on factor:
+            how many core do you have in  your CPU?
+            what kind of task are IO intensive tasks?
+            what kind of task are compute intensive tasks?...
+
+
+All Executor interface reside in the java.util.concurrent package
+
+
+
+what is callables and futures?
+
+the job of thread is always define under the run() methods of runnable/thread API
+      this run method take no parameter and neither does it have a return value 
+But what if your task that youre trying to ask the thread to do wants to return somethings?  so that
+feature is available in callable interface
+the callable interface has a methode declared which is call() , and that allow you to return generic value
+and whatever the returned value is , it can be captured in Future object 
+callable call() can throw checked Exception , the runnable run() methode doesnot throw any kind of exception 
+
+Executor framework work with both Runnable and callable object
+
+Executed Framework Hierachy
+three main interface     
+                              1.Executor                 ThreadFactory
+                                    ^
+                                    |
+                                    |
+                                    |
+                              2.ExecutorService
+                                    ^
+                                    |
+                                    |
+                                    |
+                              3.ScheduledExecutorService
+
+
+
+1.Executor
+an object executes submitted task with a single methode execute()
+instead of "new Thread(new Runnable()).start()"  --> executor object could be used as: "executor.execute(new Runnable());"
+
+2.ExecutorService
+a subinterface of the executor
+this is responsible for managing the lifecyle of all individual thread and  executor is also an object creating in the system
+ExecutorService provides submit method which accept both runnable and callable object
+not only a ExecutorService interface give you an chance to submit an individual task , but it also help
+you execute a collection of runnable and callable object
+Executor framework ,which allows us to capture the output of task? executor servcice is the one, 
+which will allow you to do that , it can help you return future object
+it also help you to completely shutdown the executor service, so that a clean shutdown is done when
+you application finally end
+
+TASK:(read file , process it and insert the info)
+first define the user bean to to store all user information
+define a class userDAO for all the  database operation and define a methode in it to insert user record 
+in DB
+define a  class userprocessor which implement callable/runnable
+to test out, in a test class , get a collection of string value from the file
+get the executorservice object from one of the factory method in executor API
+for each user ,call the executorService.submit() to submit the task
+collect output of each task in future object
+shutdown the executor service
+test the application
+
+Different Thread pool with thread factory
+                  newSingleThreadExecuted
+                  newCachedThreadPool(expandable pool, you need more task more thread will be created in the pool)
+                  newWorkStealingpool(fork join implementation)
+
+
+
+the framework will allow you to capture the output of the task inside the future object
+"future.get" is a blocking opertion (it means the main method is going to be blocked, until it get
+the future value for sure, that essentially menas,that until or unless,it get all the future , it not
+going to execute the main method or basically it is not going to resume the main method execution
+so sometimes it may a real pain in order to keep waiting till you get all future object available
+which is why there is an overloaded version of get method (which helps you to specify the timeout period, so this specify 
+the waiting period of block))
+
+few other API:invokeAny and invokeAll
+both of this methods hekp you to submit a collection of the task
+
+invokeAll:
+when you call the invokeAll method it make sure it submit all the tasks executes them and return
+their output (and that will be a list of future)
+
+invokeAny:
+little different than invokeAll it is going to make sure that it submit all your tasks, however it 
+is going to return you the output of the first successfull or execeptional execution
+(it is may be used for certain use case where you want to guaranteed delivery system to be implpemented)
+eg: you want to post message as many number times you want but you want an assurance that it definitely get
+delivered atleast once ,but you to make sure that the request fdefinitely reaches the destination
+we have the facility by invokeAny when you have an collection of same task and submit them in one shot
+we want assurance thats its, wheather it delivered or not
+
+
+
+other  Executor Service API
+
+1.shutdown:
+no new task accepted by the service, all previously submitted task are executed
+
+when your create a Executor service object in your application, it not going to be destroy automatically
+it good at time ,your application may have certain job comming on the irregular basis , so in that case
+you may want the service object to be alive so that task can be submitted that fine but(if you know that
+all the task in your appliaction are definitely reaching the completion point so it wise of course  
+go ahead and destroy the service object)
+drawback: unfortunately this methods doesnot guaranteed that all the previiously submmitted task will indeed
+reach their completion point
+
+2.shutdownNow:
+it is little rude, what it does is when you invoke it , it will do two things
+it will hault the execution of waiting tasks completely and it will also shop the execution of currently 
+running  , return value of the methods is list of the waiting task
+
+3.AwaitTerminaltion: 
+it is better choice , it is always used with shutdown and shutdownNow 
+what it do? it is actually going to responsible  to block until all the previously submitted task
+have reached the completion point
+completion check can be done with AwaitTerminaltion along first with shutdown method
+this method demand the timeout period it going to signify how much time youre supposed to wait for all
+the previously submitted task to reaach the completion
+if the time elapses then the service is going to shutdown anyway
+
+
+
+
+ScheduledExecutorService:
+
+it is a subnterface of the ExecutorService , it used to schedule a certain job,
+a special method schedule() which will help you run job after a given delay
+after a initial delay the job can run for you
+some flavour method:
+            1.scheduleWithFixedDelay
+            2.scheduleAtRateDelay
+
+
+            
+[
+1.service.schedule(new cleaningschedulor(), 5, TimeUnit.SECONDS);
+
+"2.service.scheduleAtFixedRate(new cleaningschedulor(), 5, 4, TimeUnit.SECONDS);"
+when you say schedule  at fixedRate,  it means the first cleaning schedulor is going to get enabled
+in the application after a inicial delay of 5 sec and there after every 4 sec the new cleaning schedulor is going to run
+
+"3.service.scheduleWithFixedDelay(new cleaningschedulor(), 5, 4, TimeUnit.SECONDS);
+"it is not same as earlier API, it is also going to take in consideration the time that is required for
+the  schedulor itself to get execute completely , so first instance will  begin after 5 sec
+which is the inicial delay of the application and lets  say the cleaning schedulor  takes another 2 sec to 
+execute which means 5 + 2 youll get the output at 7 sec for the first cleaning schedulor, then it going to
+wait for another  4 sec and the next cleaning schedulor task will get submitted
+]
+
+execute job periodically at specified interval
+use case: clean up and maintenance activities for the application
+
+task: list all the file from the folder on machine , if the time stamp may be greater than 5 or 10
+minutes or whatever time you want to decide then we want to delete that file we do not want to keep
+maintaining those files  lets clean them up
+
+write class cleaningscheduler  which is going to be a runnable implementation
+write the logic for cleaning file in run()  
+in test class get the ScheduledExecutorService  and schedule the job of cleaningscheduler
+
+
+ThreadFactory API:
+Execute API by default  use a ThreadFactory implementation present inside it to create thread for its 
+application
+ThreadFactory is going to manufacture thread and insert  them into thread pool and those thread are 
+going to be reused
+whenever  you use the executor default ThreadFcatory implementation, it will create thread for you
+all of which are in the same thread group with the same non priority
+
+you real dont want to see the name like pool1 thead1, pool2 thread2 ... etc because they really dont signify anyrthing
+they are not really connected to the job theyre doing( so you may have a need to actually have a custom names
+for your thread that you decide some part of convention that you want to follow for the application)
+so there is a way that to actually create your own ThreadFactory
+
+custom ThreadFactory is created in certain instance 
+                                    where you wanna give custom name 
+                                    may be set your own priority
+                                    may be try to decide daemon status of each Thread
+
+
+
+
+
+
+TASK:
+create a custom class which implement the ThreadFactory interface
+provide custom logic  to decide name or properties(implement of abstract method)
+use custom ThreadFactory class to now submit any of previous task codded in the project
+
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                  Java Enterprises Edition Concurrency Utilities
+
+why do we need a separate API?
+we already know about certain  APIs under the standard Edition platform why cant we just use them and
+integrates into the enterprise application? lets understand why?
+
+1.Every java Enterprise application always work within the appliaction server the underlying container
+and these container provide runtime support fornappliaction compnents like EJB(Enterprise java bean) 
+and servlets , Restful bean(they provide layer betweeen application component code and  the platform service  and resources)
+
+javaEE server provide central resources management
+resources like JDBC data sources, transaction management,connection pooling ...
+these resources are centrally managed ao that the other  application components do not end up consuming
+unnecessary resources so there is managed environment that is set up by the container
+
+appliaction integrity , so you have a managed environment(application can coexist without causing any harm
+to the overall system)
+
+so when you have a thread  running a job in a enterprise environment the container is going to 
+expect that the thread get all the container's supplied objects and resources to run the asynchronous 
+task
+
+thread is required to access standard enterprise edition services like java message service, java enterpride bean
+and for this ,it is required that the  contextual information of the container is provided to the thread
+contextual information is java naming and directory interface naming , class loader information, security context
+
+it is very important that the container propagate this information to all the thread executing the job for you
+
+which means , if we try to creat own thread using java standard edition platform then the container will
+not be aware or would not have any knowledge of this thread resources it will problem because it will not
+be able to provide correctly the contextual information needed to access the java enterpise service
+
+when you have EJB or servlets they are not able to relaibly use the standard EE service from a thread
+which is not managed by the container
+so now it will be wiser for the container to have those thread manage instead of us creating them ourself
+and that is why java Enterprises edition concurrency Utilities born
+
+so this API was released  as a JSR 236 IN javaEE 7 to submiit asynchronous task
+so the goal  was to define and use centralized and managable object inside the java Enterprise server
+it is extends to the java.util.concurrent API
+so this new concurrency API  that are a part of the java enterprise platform become the resources ofthe container
+so every thing is going to managed by the container now
+it will help you to  manage and monitor the lifecycle of all the asynchronous operation in you java Enterprise
+application components
+the thread executing task are now provided with the container contextual information
+
+
+
+
+ javaEE concurrency Hierachy
+ 1,2,3,4 are part of Standard Edition concurrency
+ i,ii,iii,iv are part of Enterprises Edition concurrency(javax.enterpise.concurrent)packages
+
+
+                              1.Executor                     4.ThreadFactory
+                                    ^                            ^
+                                    |                            |
+                                    |                            |
+                                    |                       iii. ManagedThreadFactory
+                                    2.ExecutorService        
+                                    ^             ^
+                                    |             |
+                                    |             | 
+                                    |             |
+                   3.ScheduledExecutorService  i.ManagedExecutorService
+                                    ^            ^
+                                    |            |
+                                    |            |
+                        ii. ManagedScheduledExecutorService            iv.Context Service
+
+
+
+
+context service: it is very interesting API utilies to create contextual proxies in the enterproise application
+similarly:
+managedExecutorService:it is going to help you submit task, runnable or callable
+managedScheduledExecutorService: it is going to help you submit task, which are to be scheduled at regular interval or with certian definition delay
+ManagedThreadFactory: it will give you a way to have the threads creats for your pools
+
+As an application, what are my responsibility
+I will have to find out the way to use environment reference of managed resources
+eg: i want to use managedExecutorService to submit a particular task, then i need to understand : hoe do i 
+take reference of that resources  in my enterprisejavaBean/servlets/Restfulapi
+two ways:
+    1.   either you declared them in your deployment descriptor
+    2. look it up  in the container/environment/ newtwork through Java Naming and Directory Interface API (JNDI)
+       (it is used to access directory service ) or you can simply do dependency injection by the   resources Annotation
+ofcources you have to define task because  we're trying to spawn asynchronous task , so these task will be
+defined as implementations  of callable(if you want return value) and runnable.
+
+task could also implement managedTask and even registered managedTaskListeners to receive LifeCycle Notification
+
+What is ManagedTask Interface? 
+it is used to provide identifying information about the task or maybe to provide additional execution properties
+(so any kind of addition exection properties could be set via the managedTask interface)
+
+managedTask Listener is basically a listener class used to receive lifeCycle Notification
+(this listener  is going to trace the state of yours task future) whenever the state changes , you can configure
+this listener and whatever you want as a part of processing
+
+
+
+TASK:
+create a new project from maven archetype
+add dependency jar for mysql connector,c3p0(connection pooling)
+create all packages for bean , rest classes , runnable and DAO classes
+create a restful bean; define @path annotation to it to specify its URI
+add rest method annotated with either @GET or @POST
+
+RESTFUL APPLICATION
+
+Add javax-rs configuration
+install a server -->GlassFish 5 for specific jdk
+take postman to test API
+
+
+postman://auth/callback?code=7d46705bc32a03b0a9aebf876a7859d91fe5006748b0c99a301905b1ee107066
+
+
+Java EE Concept
+1.JNDI:(java naming and directory interface) 
+is an API in java , to access directory service , so what does it do?
+it help you to lookup the data and resources by means of an name and the name is a JNDI name
+it is independent of the underlying implementation
+when you talk about the resources and data lookup these can come from either flat file or database or application server
+the java remote methode invocation and java enterprise edition API  use JNDI extensively to lookup object 
+over an internet
+
+very common directory services like LDAP, gold-bar, DNS etc can be access through JNDI
+
+Now when you want to do JNDI lookup in your RESTFUL bean or may be in  your EJB classes  then there is an
+API available for it  which is initial context which comes from the java start naming packages
+
+when you do JNDI lookup you will need that initial context API
+
+
+2.stateless session bean :
+it is type of enterprise java bean ,which is used to perform independents operation
+it is stateless  which means it does not conserve any state of the client
+this is the session bean where you can add a lot of business methods whhich do database intreraction with you
+or any other kind of business logic for you
+the application server often create a pool of such stateless session bean , so that it can do the request
+processing operation on those business methods
+
+3.Global Transaction:
+when you have distributed environment, you may have multiple resources manager on which you are trying to
+do transaction
+multiple resources could be database or GMS quese or application server etc
+whenever you do this distributed transaction processing , it is absolutely important that the data integrity is ensured
+XA or Extended Architecture is an open standard which is defined for executing a global transaction that
+access more than one backend data tool
+it help you to define the interaction between the transaction manager and resources manager
+the goal of XA is to allow multiple resources like database or GMS quese or transactional caches etc to be
+accessed within the  same transaction,thereb preserving the asset properties across application
+in mysql , XA is already present in mysql driver jar file 
+
+4.java Transaction API:
+this is very famous API, it is basically list of interface betweeen the transaction manager and parties involved in
+the transaction
+this transaction API has specification to perform transaction over a distributed network
+the parties involved in the transaction processing will be resource manager,appliaction server and application code
+(so JTA is going to specify between the  transaction manager and all parties)and gives  you the way to do the transaction
+processing
+
+
+i.Managed Executor Service
+
+TASK:
+generate report for user, so lets say we have a list of bank account with us ,And having those transaction
+against bank accounts , we have to generate a report for all transaction per bank accounts?
+1.read the bank accounts information for all user from the database
+And for each bank accounts  we are going to retrieve the transaction information
+Once we have the transaction information ready ,we will write all of that to  a file
+Create a report processor class---> 
+                              callable implementation(going to definr job of the task ) define job
+                              call the bank_AccountDAO for transaction information for every bank accounts
+                              saves to file
+create a Restful bean--> ReportResources
+Inject managedExecutorService object in the  ReportResources  class throught the @Resources Annotation
+setup connection pooling using c3po liberary
+Add rest method , call bankAccountDao  to get bank account Information for all user , for every bank account,
+call the  managedExecutorService to submit the report generated task
+
+
+
+                                    job
+rest classs          ----- >  generate transaction ----> runnable/callable class
+Managed Executor Service          report
+to submit one task per    /         |
+bank accounts            /          |
+                        /            |
+                       /             v      
+                      /       DAO operation----->bankaccount DAO class
+                     V
+             connection pooling
+             for DB connection 
+             via external liberary(c3po)       
+
+
+
+ii.ManagedScheduledExecutorService:
+it is an extension for ScheduledExecutorService it provide you a method to submit job/task at regular interval
+or with definite delay
+it is obtained through the container using JNDI lookup or Resources Annotation
+
+TASK:
+Health check for application 
+it is going to check the health of the application, i have a URL of my application , want to hit that URL,
+make sure that it up and running, thats all we checking and this has to happen periodically beacuse in case 
+where it is down , then need to take appropriate action 
+
+how: using Java.net API , very simple code , where we will feed the URL of these APIs and ask it to connect 
+that particular website and check where its up and running
+
+
+
+add a method to rest class, call the scheduled method of the managedScheduledExecutorService and
+test the task with postman tool
+create runnable implemntation of url processor(which will check the given url is running or not)
+add a method to the rest class and call the scheduled method of managedScheduledExecutorService
+
+
+
+
+       test case use                  ---------------> job-----> Runnable class
+managedScheduledExecutorService                      ^     |
+to schedule the health check                         |     |
+periodically                                         |_____|
+     
+  
+
+
+                                              
+iii.Managed ThreadFactory API
+
+
+it is a managed version of SE ThreadFactory (to create a thread in the application)
+when you talk about ManagedThreadFactory this is going to managed by the container 
+this APIs are going to injected using JNDI lookup or Resources Annotation
+ManagedThreadFactory can be used with java SE ExecutorService , (on java SE platform there is an APIs
+called java.util.concurrent.ThreadPoolExecutor(this API is allow you to creat and execute a service specifying
+your own configuration parameter like
+full size,maximum number that can be live in the pool, what is the keeper lifetime, how many tasks should be held,
+ in the queue) )
+
+when you create the ExecutorService out of the ThreadPoolExecutor , you feed the ManagedThreadFactory API to it
+so that all the threads manufactured this way will run  with the container context
+
+
+TASK:
+add a rest class in the project
+inject the ManagedThreadFactory by @Resources annotation in rest class
+create a logging task as runnable implementation
+In the rest methode use ManagedThreadFactoryn to create a new thread and
+then test the entire task with postman tool
+
+
+simply you can create a new  thread with the managed thread factory and when you create the thread out 
+of this factory, it means  now that the thread is going to run with all the container context information
+
+
+
+
+how to use the thread ThreadPoolExecutor and combine it with  the ManagedThreadFactory to return you
+a java standard edition executorService?
+(use ManagedThreadFactory with ThreadPoolExecutor)
+
+thread pool execute is also comes  from " java.util.concurrenct" packages , previosly we worked and we also 
+used with factory methode in java SE platforms APIs that available on the executors utilies class in order  to get service object  
+In this demo, we could have use ThreadPoolExecutor as well to get your ExecutorService object , 
+but you no need  to do that all configuration by yourself like (full size,maximum number that can be live in the pool, 
+what is the keeper lifetime, how many tasks should be held in the queue)
+getting hold of factory method on the executor utilities is always adviseed even by API, 
+but what we are trying to do is , we are trying  to use this ThreadPoolExecutor under the enterpise application  and that is gona to
+get us an executor service
+how?
+you have this version which gets you the executorservice and its demands from you a lot of argument like(corepoolsize, no fo active thread,
+maximumpoolsize,how many thread can this pool hold at maximum level, keepAliveTime(pool that currently more than your core pool size
+thread, then excessive thread in that pool will be automatially terminated if they have been idle for more than this keepalive time),
+TimeUnit, blocking Queue(if you have a thrad which are fewer than your corepoolsize thread, then the executor will always prefer
+adding a new thread rather than queueing , if you says the corepoolsize or more thread are running then the executor will prefer queuing a request
+rather than addinga new thread), threadfactory )
+
+
+"ExecutorService service= new ThreadPoolExecutor(3,10,5,TimeUnit.SECONDS,new ArrayBlockingQueue(2),threadfactory);"
+output:
+
+% logging data for logging resources|#]
+% logging data for logging resources|#]
+% logging data for logging resources|#]
+% thread concurrent/__defaultManagedThreadFactory-Thread-5|#]
+% thread concurrent/__defaultManagedThreadFactory-Thread-4|#]
+% thread logging-thread|#]
+% thread concurrent/__defaultManagedThreadFactory-Thread-7|#]
+% thread concurrent/__defaultManagedThreadFactory-Thread-5|#]
+% thread concurrent/__defaultManagedThreadFactory-Thread-7|#]
+% logging data for logging resources|#]
+% logging data for logging resources|#]
+% logging data for logging resources|#]
+% logging data for logging resources|#]
+% thread concurrent/__defaultManagedThreadFactory-Thread-8|#]
+% logging data for logging resources|#]
+% thread concurrent/__defaultManagedThreadFactory-Thread-6|#]
+
+where we try to create a single thread out of the managedThreadFactory,but feather name are we get it from the out are actually a thread
+that  have been created out of your managedThreadFactory and fed to the executor service thats why these thread will also have
+the entire application component context information with them when theyre executing thejob of the Asynchronous task
+
+
+
+iv.ContextService API
+
+before moving lets see some thing
+1.Contextual Object: 
+                  any java object or instance which will have the particular application components container context associate with it
+2.Contextual Task:
+                  it is a task which is submitted to the managed resources(so when the task instance is submitted  to managed 
+                  instance of the executor service then the task become contextual task)
+when you take about contextservice API , it is going to allow application to create contextual object without managed executor 
+let us understand this:
+      if we try to creat a thread using java Standard Edition platform inside the Enterprise Edition, we know that the contextual information
+      is not guaranteed to be given to the  thread because the container is not awaren of the thread that you created with SE platform
+      if you want to capture the additional information of the container context if you realy want out a way where you will capture 
+      container context and run with that context later , even on another instance of server or may be on a server restart, then 
+      contextservice API is the way to do it(it will give a way to capture that context information, store it so that you can Run
+      it at a later point in time)
+      |
+      |
+      V
+how does it do that?
+it uses the dynamic proxy capabilities that provided under the "java.lang.reflect" packages  to associate the application 
+components context with an object instance
+so that the object now become a contextual object and whenever a method on the contextual object run then the method executes with 
+the thread context of that  associated  application components instances
+
+used in advances scenerio
+
+managedExecutorService is likely to use this context service internally to make sure that the container
+context is propageated to the thread
+
+context service --> it help you to create a contextual object , which means these contextual object
+will have the context information(JNDI naming, class loader information and security context)
+
+
+TASK:
+add a rest class in the project
+inject the contextservice by @Resource annotation in the rest class 
+create a simple runnable implements, which fetch the security  context information
+use contextservice API to create a contextual proxy for the runnable interface
+test the restFul API using postman tool
+
+
+
+here we are going to fetch the security context information, so genderally yo build a restful application
+you do cinfigure the security authentication because you donot want any body to come and access service
+(but for practice purpose here we are not using security configured on the
+ restful service that we have build)
+but whenever we try to pull in the security context information , it will pulling the security context information
+on the underlying glassfish server users,
+so whatever the default configuration has been defined for security under the glassfish server that is what we are 
+going to pull out
+how to pull out?
+we are going to make a couple of APIs from "java.security" package and "java.security.auth" package
+how do we do that? we take a subject API
+
+% "Subject subject=Subject.getSubject(AccessController.getContext());"
+
+subject is an API that we going to help to store related informtion like (eg: user,entity,person)then that the information 
+of that person is contained in this subject APIs , so that could be the identity information , it could also be 
+security related attributes (like password,cryptographic key etc) that is the subject information
+AccessController.getContext() is  basically going to give me the snapshot of the current calling context, from
+that current calling context , im try to retrieve the subject
+access controller just for your information is basically to make a decision about a particular  accessed resources
+so if theres is a resources that i have with me  , should i be allowing access to it or should i be denyoing it?
+that is what it tell me, so fom the snapshot of the current context, im picking up the subject information(so the 
+person or user information) 
+
+
+
+
+% Thread thread= new Thread(runnable);
+% thread.start();  
+
+so if i try to create my own resoures we know that the container would not be aware an then this thread would never
+get the thread context, which means if i try to run this thread now , then it not guaranteed that the
+security context information i am trying to pull in this rubbanle we be available to me when i run this thread
+(if you created  these thread by yourself , then their is no guarantee the  threads entire contextual information
+would be available inside the thread)
+whatever thread code you are running like above you accessing security context in the thread it not sure whether it will get it
+so instead of that, the context service API  now can be used to ensure that context information will be captured for this thread to run
+
+HOW?
+create a proxy
+
+% Runnable proxy =contextservice.createContextualProxy(runnable,Runnable.class);
+% Thread thread= new Thread(proxy);
+% thread.start();
+
+now the proxy will definetly retain that security context information, so how the proxy wil have access to it
+so running the proxy by means of the thread, let it be an another instance of server or maybe  when the server restart
+this proxy will still retain that security information , it will be able to access that security information and that is exactly
+the magic that contextservice APIs spin
+(it allow  you to capture that the container context and allow you to run it at a later point in time)
+
+
+Important point to note:
+1. four main service that we seen (like managedExecutorService,
+managedScheduledExecutorServicem,ManagedThreadFactory,context service ) are the interface that the specification
+of JSR(java specification Request) has ,but implement of the classes are going to be provided by the underlying
+application server that you are using (like GlassFish Server)
+and Whenever you are going to change your server , lets say you are woring on JBOSS,WILDFLY , then this
+implementation classes will change according to the underlying provider  
+
+2.configure resources in the server (or) use default pre-configed implementations
+like "java:comp/DefaultManagedExecutorService", "java:comp/DefaultManagedScheduledExecutorService"
+ on GlassFish
+
+3.all methods like (invokeAny (), invokeAll(),AwaitTerminaltion()...etc) we can used in java SE concurrency APIs is similarly we can use in java EE concurrency APIs
+but except shutdown() or shutdownNow() method they are no longer needed for managed resources because these 
+resources are ccompletely upto the container to manage
+
+4. previos we seen some  flavour method like
+1.scheduleWithFixedDelay
+2.scheduleAtRateDelay in ScheduledExecutorService on java SE concurrency APIs similarly we can use
+this methods on java EE concurrency APIs as well.
+
+5.all the task,all the runnable , all the callable that you trying to write down in your application ,
+they are going to now run with these managed thread coming from the container , and when that happen 
+these thread will run within the qpplication component context
+so you may have your EJB, servlets, RestFul bean , so the entire contextual information will be available now
+on that running thread
+
+
+
+
+How concurrency deals with the transaction management
+we know that JTA(java transaction API)-->
+                  it is a list of interface that are provider between the transaction manager and management 
+                  components like your application server or application code or resource manager
+                  (there are many kind of transaction that you can make)
+
+
+datasouces-->database        
+                                                          
+                               
+datasources1
+            \
+             \
+             database
+             /
+            /
+datasources2
+
+
+datasources1---->database1___
+                             |over the network
+datasources2---->database2___|   
+
+
+it means i have a situation where it a distributed network and i may have to perform  transaction over each 
+of the machines in the network
+when it will be the distributed network, there will be global transaction, the transaction due to threads,
+JMS queues, application server etc,
+
+when we take about the concurrency programming with JTA
+(concurrency programming with transaction in distributed environment is difficults)
+if you have a distributed environment  , the most basic operation like commit , rollback along with concurrency 
+programming is really be challenged
+i order to grauanteed that commit and rollback operation successfully work and the data integrity is menstioned
+that has definitely to be handled carefully
+javax.transaction.useraTransaction API , which is something  that your concurrency programming will rely on
+
+it help the developer to demarket those transaction boundaries
+(so i may have the transaction,which is spread among the different threads, CPU cores, machines or even networks)
+so when i says managed correctly there will be a commit when we are very sure that all of the units 
+transaction within the  single transaction are ready to commit , otherwise if there is anything going wrong
+in any of the bit in the transaction the entire data from the database will be rolled back and the databse will
+be restored to the previous state
+
+global transaction and XA(extended architecture resources)we said that our database driver  jars should definetly have the 
+XA resources available
+                  which can help you make sure that this global transaction and distribution transaction process
+                  work well
+                  mysql server and driver jar  dependency ,we using is definitely  has XA global resources
+
+
+% try{
+%       usertransaction.begin()
+%       --call and EJB ,methods
+%       --call DB
+%       usertransaction.commit()
+% }
+% catch(){
+%       usertransaction.rollback()
+% }
+
+whenever in the restfull application you want to get hold of the java transaction object the user transaction.
+it can be easily obtained using JNDI lookup or inject @Resources annotation
+
+Concurrency with JTA
+Task:
+two datasources that pointing to the same database
+two table bankAccountTransaction and bankAccountsTransactionLog (if there is transaction,
+then is there a log entry for it )
+create two different datasources  object resources on glassfish server throught the IDE and Admin console
+create a trnasaction bean which does db operation against two database table
+create a transactionprocessor and implements the runnable in following run() methods
+get the javax.Transaction.userTransaction object by JNDI lookup
+call the transactionBean methods one after the other within the same transaction
+commit and rollback as desired
+write a rest class for the transaction demo  and inject the managedExecutorService object through the @Resource annotation
+submit the task to the callable via managedExecutorService object from the rest class
+clean and build and test the restFul URL through postman tool
+
+
+
+on previous demo , when we try to read all the users and save them to a file , we did a lot of database interaction
+and so many database connection object were created, so i actually plugin to third-party connection pooling library
+(c3po) it is an external party
+here we creating connection pool inside the application server itself and then we draw two datasources out  of that 
+pool
+Using JTA with restful for transaction with the database
+
+
+
+
+
+
+
+
+
+Objective:
+What is concurrency?
+Processes and threads in Java SE
+Java EE concurrency APIs
+Working with the ManagedExecutorService, ManagedScheduledExecutorService, ManagedThreadFactory, and ContextService APIs
+Defining data access object (DAO) classes
+Adding methods to DAO classes
+Writing REST classes
+Creating custom thread factories
+Creating contextual proxies
+JTA transactions and concurrency

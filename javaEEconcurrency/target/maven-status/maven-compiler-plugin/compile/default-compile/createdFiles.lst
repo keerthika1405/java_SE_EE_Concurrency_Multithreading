@@ -1,0 +1,13 @@
+com\app\runnable\reportProcessor.class
+com\app\rest\urlHealthResource.class
+com\app\rest\greetResource.class
+com\app\rest\loggingResource.class
+com\app\bean\bankAccount.class
+com\app\dao\bankAccountDao.class
+com\app\runnable\urlHealthProcessor.class
+com\app\bean\bankAccountTransaction.class
+com\app\rest\JAXRSConfiguration.class
+com\app\rest\reportResources.class
+com\app\rest\contextServiceApiResources.class
+com\app\runnable\loggingProcessor.class
+com\app\runnable\contextServiceRunnable.class
